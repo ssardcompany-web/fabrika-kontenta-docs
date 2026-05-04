@@ -183,7 +183,7 @@ Delivery → доставка в личный кабинет клиента / Te
 - Google AI Studio Vertex AI documentation (Veo 3.1)
 - ByteDance Doubao Seedance documentation
 - Kling AI 3 documentation
-- Reddit r/StableDiffusion / r/aivideo / r/sora
+- Reddit r/StableDiffusion / r/aivideo
 - Twitter/X треды AI-creators (@bilawalsidhu, @nikbearbrown, @drjimfan)
 - WB Academy / Ozon Seller University / Mercado Libre Academy
 - vc.ru статьи про fashion-маркетплейсы и AI-content

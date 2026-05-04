@@ -2,7 +2,7 @@
 
 > Дата: 2026-05-04
 > Платформы: TikTok / Instagram Reels / YouTube Shorts (9:16, vertical)
-> Контекст проекта: «Фабрика Контента» — AI-генерация продающих видео для брендов одежды через Veo 3.1 / Sora 2.
+> Контекст проекта: «Фабрика Контента» — AI-генерация продающих видео для брендов одежды через Veo 3.1 / Seedance 2.
 > Жёсткое ограничение: длительность ≤ 30 секунд (best engagement zone).
 
 ---
@@ -15,7 +15,7 @@
 - **TikTok apparel CTR-бенчмарк (paid): 0.69 %, ROAS 2.49, CPM $4.24, AOV $68.40.** Apparel — №2 по CTR среди всех индустрий.
 - **Engagement rate органик fashion: 2.4 % avg, top brands > 8 %.**
 - **Average watch time: 6–10 сек; > 50 % длительности = strong, > 70 % = viral candidate.**
-- **AI-видео в 2026:** Veo 3.1 хорошо ведёт fabric/water/glass physics, есть character consistency через reference images; Sora 2 — лучший фотореализм, но без жёсткого character reference. Главные подвохи: микроэкспрессии лица, пальцы рук, мерцание текстур, drape ткани под нагрузкой.
+- **AI-видео в 2026:** Veo 3.1 хорошо ведёт fabric/water/glass physics, есть character consistency через reference images; Seedance 2 — лучший фотореализм, но без жёсткого character reference. Главные подвохи: микроэкспрессии лица, пальцы рук, мерцание текстур, drape ткани под нагрузкой.
 
 ---
 
@@ -165,7 +165,7 @@
 
 **Примеры.** `@danielleberns`, `@songofstyle`, тренд `#3outfitsfor`.
 
-**AI-генерация: Medium.** 3 разные сцены — face consistency через reference-image. Drape проблем мало (статика). Veo 3.1 предпочтительнее Sora 2.
+**AI-генерация: Medium.** 3 разные сцены — face consistency через reference-image. Drape проблем мало (статика). Veo 3.1 предпочтительнее Seedance 2.
 
 ---
 
@@ -239,7 +239,7 @@
 
 **Примеры.** `@kendalljenner` Aritzia haul, `@brittnimack`, `@daniellemarcan`, тренд `#tryonhaul` (54B views).
 
-**AI-генерация: Medium.** 5 разных образов на одной модели — character consistency сложно держать на 30s; spliт на 5 generations + manual edit. Подвох: распаковка-сцена (руки + товар) часто ломается (Sora/Veo пальцы).
+**AI-генерация: Medium.** 5 разных образов на одной модели — character consistency сложно держать на 30s; spliт на 5 generations + manual edit. Подвох: распаковка-сцена (руки + товар) часто ломается (Seedance/Veo пальцы).
 
 ---
 
@@ -273,7 +273,7 @@
 
 **Примеры.** `@matildadjerf`, `@laurastoloff`, тренд `#ootd` (1T+ views).
 
-**AI-генерация: Easy.** Одиночный shot, статика — идеальный кейс для AI. Veo 3.1 / Sora 2 оба справятся.
+**AI-генерация: Easy.** Одиночный shot, статика — идеальный кейс для AI. Veo 3.1 / Seedance 2 оба справятся.
 
 ---
 
@@ -379,7 +379,7 @@
 
 **Примеры.** Celine, Acne, `@matildadjerf`, `@chloecharm` walks.
 
-**AI-генерация: Medium.** Walking + fabric flow — Veo 3.1 closest to camera footage по fabric physics. Подвох — feet/hands при walk-cycle. Sora 2 фотореалистичнее, но без жёсткого character-anchor.
+**AI-генерация: Medium.** Walking + fabric flow — Veo 3.1 closest to camera footage по fabric physics. Подвох — feet/hands при walk-cycle. Seedance 2 фотореалистичнее, но без жёсткого character-anchor.
 
 ---
 
@@ -688,7 +688,7 @@
 
 **Примеры.** Loewe, Bottega Veneta, JW Anderson Reels.
 
-**AI-генерация: Easy.** Статика, без лица, без рук — идеально для AI. Veo 3.1 / Sora 2 / Runway все справляются.
+**AI-генерация: Easy.** Статика, без лица, без рук — идеально для AI. Veo 3.1 / Seedance 2 / Runway все справляются.
 
 ---
 
@@ -935,7 +935,7 @@
 
 **Примеры.** Saint Laurent, Coperni IG, `@lindatol_` walk series.
 
-**AI-генерация: Medium.** Walk-cycle + camera move — Veo 3.1. Главное — character anchor (face/body). Sora 2 даёт лучший cinematic look, но без жёсткого character lock.
+**AI-генерация: Medium.** Walk-cycle + camera move — Veo 3.1. Главное — character anchor (face/body). Seedance 2 даёт лучший cinematic look, но без жёсткого character lock.
 
 ---
 
@@ -997,9 +997,7 @@
 - [What Is a Good Video Watch Time in 2026 — That Random Agency](https://thatrandomagency.com/2026/01/07/video-watch-time-2026/)
 - [TikTok Ads Benchmarks (Apparel CTR/CPM/ROAS) — Triple Whale](https://www.triplewhale.com/blog/tiktok-benchmarks)
 - [2026 Fashion Industry Benchmarks — Dash Social](https://www.dashsocial.com/social-media-benchmarks/fashion-industry)
-- [E-Commerce AI Video Maker Benchmark: Veo 3 vs Sora 2 — AIMultiple](https://aimultiple.com/ai-video-maker)
-- [Sora vs Veo 3.1 vs Seedance 2.0 — MindStudio](https://www.mindstudio.ai/blog/sora-vs-veo-3-1-vs-seedance-2-comparison-3)
-- [What Is Sora's Reference System (character consistency) — MindStudio](https://www.mindstudio.ai/blog/what-is-sora-reference-system-character-consistency)
+- [E-Commerce AI Video Maker Benchmark: Veo 3 vs Seedance 2 — AIMultiple](https://aimultiple.com/ai-video-maker)
 - [How to Detect AI-Generated Video in 2026 — Faux Lens Journal](https://fauxlens.com/blog/detect-ai-generated-video-2026)
 - [50 Fashion TikTok Video Ideas for 2026 — FluxNote](https://fluxnote.io/guides/fashion-tiktok-video-ideas)
 - [100+ Fashion Video Ideas — GlobalOwls](https://globalowls.com/marketing-examples/fashion-video-ideas/)

@@ -1,18 +1,18 @@
 # 05. Template Engineering и Best Practices AI-генерации видео для fashion
 
 > **Дата сборки:** 4 мая 2026
-> **Цель блока:** дать архитектуре «Фабрики Контента» рабочий контракт шаблона видео + промпт-стратегию для Veo 3.1 / Sora 2 / Kling 3 / Nano Banana / Higgsfield / Midjourney v7. Только факты с источниками + конкретные примеры promptов и YAML-схема, которую можно сразу втащить в код.
+> **Цель блока:** дать архитектуре «Фабрики Контента» рабочий контракт шаблона видео + промпт-стратегию для Veo 3.1 / Seedance 2 / Kling 3 / Nano Banana / Higgsfield / Midjourney v7. Только факты с источниками + конкретные примеры promptов и YAML-схема, которую можно сразу втащить в код.
 > **Источники:** официальные docs (OpenAI Cookbook, Google Vertex AI, Higgsfield), сайты Botika / Veesual / Resleeve / Flair / Arcads / Creatify / Topview, гайды LTX Studio / DreamHost / Skywork / Invideo, обзоры Atlas Cloud / aifreeapi / costgoat / arsturn (45+ источников).
 
 ## Содержание
 
 1. [Архитектура шаблонов у конкурентов: что копировать](#sec-1-competitor-architectures)
-2. [Промпт-инжиниринг по моделям (Veo 3.1, Sora 2, Kling 3, Higgsfield, Nano Banana, Midjourney v7)](#sec-2-model-prompts)
+2. [Промпт-инжиниринг по моделям (Veo 3.1, Seedance 2, Kling 3, Higgsfield, Nano Banana, Midjourney v7)](#sec-2-model-prompts)
 3. [Топ-5 best-practice prompts для fashion-видео ≤30s](#sec-3-best-prompts)
 4. [Подвохи и пять главных fail-зон AI-генерации одежды](#sec-4-pitfalls)
 5. [Параметрическая модель шаблона «Фабрики Контента» (YAML)](#sec-5-yaml-schema)
-6. [Prompt-Builder: как YAML превращается в текст для Veo / Sora](#sec-6-prompt-builder)
-7. [Cost & throughput benchmarks (Veo / Sora / альтернативы)](#sec-7-benchmarks)
+6. [Prompt-Builder: как YAML превращается в текст для Veo / Seedance](#sec-6-prompt-builder)
+7. [Cost & throughput benchmarks (Veo / Seedance / альтернативы)](#sec-7-benchmarks)
 8. [Источники](#sec-8-sources)
 
 ---
@@ -42,7 +42,7 @@
 
 **Top-3 — Topview (Reference Video Agent → копирование hook+pacing+structure).** Topview анализирует чужое viral-видео (style, pacing, hooks, shot structure) и генерит шаблон. Это даёт нам способ кормить «Фабрику Контента» библиотекой выученных шаблонов из ТикТок-трендов: парсим референс → JSON → используем как базу для нового шаблона. ([Topview AI Video Agent](https://www.topview.ai/guides/video-agent), [WithLore breakdown](https://www.withlore.co/blog/topview-ai-viral-video-agent/))
 
-**Что НЕ копировать.** Botika/Veesual закрывают prompt-level и фиксируют свой VITON/GAN-движок — нам это не подходит, так как мы хотим открытый prompt-builder поверх Veo/Sora/Kling. Resleeve пока строит «AI + люди в петле» (24h turnaround через дизайнеров) — для масштабирования 1550 видео/мес не годится. Arcads хорош для UGC-актёр+скрипт, но фиксирует видео в формате говорящей головы — это ортогонально fashion-каталог-видео. ([Botika products](https://botika.com/products), [Veesual VITON-GAN](https://www.veesual.ai/blog/virtual-try-on-styling-fitting), [Resleeve studio](https://resleeve.ai/), [Arcads workflow](https://www.codeitbro.com/blog/arcads-ai-review))
+**Что НЕ копировать.** Botika/Veesual закрывают prompt-level и фиксируют свой VITON/GAN-движок — нам это не подходит, так как мы хотим открытый prompt-builder поверх Veo/Seedance/Kling. Resleeve пока строит «AI + люди в петле» (24h turnaround через дизайнеров) — для масштабирования 1550 видео/мес не годится. Arcads хорош для UGC-актёр+скрипт, но фиксирует видео в формате говорящей головы — это ортогонально fashion-каталог-видео. ([Botika products](https://botika.com/products), [Veesual VITON-GAN](https://www.veesual.ai/blog/virtual-try-on-styling-fitting), [Resleeve studio](https://resleeve.ai/), [Arcads workflow](https://www.codeitbro.com/blog/arcads-ai-review))
 
 ### 1.3 Общие паттерны (что присутствует у 6+ из 9 сервисов)
 
@@ -84,54 +84,93 @@
 
 **Workaround для камеры.** Точная фраза `"(that's where the camera is)"` после описания шота заметно повышает корректность viewpoint (snubroot guide).
 
-### 2.2 Sora 2 (OpenAI)
+### 2.2 Seedance 2 (ByteDance / Doubao)
 
-**Структура (OpenAI Cookbook official).**
+**Доступ.** Официально через **BytePlus ModelArk** (https://docs.byteplus.com/en/docs/ModelArk/1520757) и Volcengine. Mirror-провайдеры: **fal.ai** (https://fal.ai/seedance-2.0), **Replicate** (bytedance/seedance-2.0), **PiAPI**, **APIMart**, **AI/ML API**. Доступен из РФ без VPN. Модель ID: `doubao-seedance-1-5-pro-251215` (latest stable Volcengine) или `seedance-2.0` через fal.ai.
 
-1. **Style/Aesthetic** (`1970s film`, `editorial fashion reel`, `Technicolor Noir`)
-2. **Scene Description** (плотная проза: персонажи, сеттинг, props, атмосфера)
-3. **Cinematography** (framing + lens + DOF + angle)
-4. **Lighting & Palette** (источники света + color anchors)
-5. **Actions** — нумерованные beats или счёт шагов (`takes four steps`, не `walks across`)
-6. **Dialogue** — отдельный блок ниже описания, спикеры через `—`, alternating turns
-7. **Sound/Audio** — diegetic + ambient cues
+**Возможности.**
+- Text-to-Video (T2V)
+- Image-to-Video (I2V) — JPEG / PNG / WebP reference
+- **Reference-to-Video (R2V)** — character consistency через до 4 reference images
+- Video Edit (расширение / стилизация существующего видео)
+- Audio: Pro генерирует синхронизированный звук в кадре
 
-**Длина.** 2–3 предложения = больше creative variation. Подробный breakdown = больше control. На fashion рекомендуется длинный prompt с шот-листом по beats. ([OpenAI Sora 2 cookbook](https://developers.openai.com/cookbook/examples/sora/sora2_prompting_guide), [Higgsfield Sora 2 guide](https://higgsfield.ai/sora-2-prompt-guide))
+**Структура prompt'а — natural language, не JSON.** Subject + Action + Camera + Scene/Lighting + Style. **6-part framework** официальный (BytePlus):
 
-**Длительность клипа.** 4 / 8 / 12 сек (durаtion tiers). 4s = 1–2 dialogue exchanges, 8s = несколько, 12s = полноценный шот-лист.
+1. **Subject** — кто/что (модель + одежда + аксессуары + детали кроя)
+2. **Motion** — что делает (короткие глаголы движения)
+3. **Camera work** — нативные ключевые слова: `push`, `pull`, `pan`, `move`, `orbit`, `follow`, `lift`, `lower`, `zoom`
+4. **Environment / Scene** — где (props, background)
+5. **Lighting & Atmosphere** — источник + температура + настроение
+6. **Style** — эстетика (cinematic / editorial / handheld / Y2K / etc)
 
-**JSON storyboard format (Sora 2 native).**
+**Длина prompt'а.** Sweet-spot **50–150 слов**. Меньше = размытый результат; больше = AI начинает игнорировать поздние инструкции.
 
-```json
-{
-  "model": "sora-2-pro",
-  "size": "720x1280",
-  "seconds": "12",
-  "storyboard": true,
-  "style": "Editorial Fashion Reel",
-  "scenes": [
-    {
-      "timestamp": "0-2s",
-      "description": "...",
-      "camera": {"lens": "35mm", "movement": "dolly in"},
-      "lighting": {"key": "strobe burst", "fill": "tungsten side"},
-      "transition": "match cut"
-    }
-  ],
-  "characters": [{"id": "char_123", "reference": "..."}]
-}
+**Длительность одной генерации.** Параметр `input.duration` от **2 до 15 секунд** (для Seedance 2.0 Pro). Для длиннее 15s — chaining (image-to-video с финальным frame предыдущего клипа в качестве start_frame следующего).
+
+**Aspect ratio:** 9:16, 16:9, 1:1, 3:4, 4:3 (выбирается параметром).
+
+**Resolution:** Pro = 1080p / Lite = 720p.
+
+**API call (через fal.ai, упрощённо):**
+
+```bash
+curl -X POST https://fal.run/fal-ai/seedance-2.0 \
+  -H "Authorization: Key $FAL_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "A model in a cream wool coat walks toward the camera through a narrow Buenos Aires colonial corridor. The camera does a slow push-in following her. Soft golden hour light from the left, warm shadow tones. Cinematic editorial style.",
+    "duration": 8,
+    "aspect_ratio": "9:16",
+    "resolution": "1080p",
+    "seed": 42
+  }'
 ```
 
-([Sora 2 JSON template guide](https://solvingtools.github.io/JSON-Prompt-Gen/src/blog/sora-json-prompt-guide/index.html), [GitHub sora-prompt-generator](https://github.com/shijincai/sora-prompt-generator))
+**Что работает для одежды.**
+- **Camera commands** — нативная поддержка: `the camera orbits 180 degrees around the model` / `slow dolly push-in` / `whip pan to product close-up`
+- **Garment language** — называть крой и материал: `asymmetric satin slip dress`, `oversized denim jacket`, `pleated wool trousers` — Seedance понимает специфическую fashion-терминологию лучше Veo (китайская тренировка на fashion-датасетах)
+- **Multi-shot в одном prompt** — Seedance умеет переключать кадры внутри одной генерации, если разделить scenes явно: `Shot 1: ... Shot 2: ...` (или через нумерацию beats)
+- **R2V для character consistency** — отправляем 1–4 reference image модели → Seedance держит её внешность через все кадры
+- **Audio sync (Pro only)** — генерирует диалог + ambient звук синхронно с движением губ / действий
 
-**Что критично для одежды (Higgsfield Sora 2 fashion guide).**
-- Лензы: чередовать **35mm (wide tracking)** и **85mm (macro close-ups)** + shallow DOF.
-- Light: **strobe bursts + constant LED fill + tungsten side spill**.
-- Color anchors: `matte black, metallic gold, ivory, deep shadow blue, neutral gray`.
-- Pacing: для 12s reel — `2-2-2-2-2-2 beat rhythm` (7 cuts), каждый beat = одна камера + одно действие.
-- Garment language: `asymmetric black leather jacket`, `high-waisted pleated satin pants`, `gold statement earrings` — прямое название кроя + материала.
+**Что НЕ работает.**
+- Длинные narrative ≥ 16 сек без cuts (нужен chaining)
+- Сложные negative prompts через инструкции — лучше переписывать позитивно
+- Lip-sync на длинном диалоге (>3–4 сек реплика) — character consistency держится, но микро-мимика разваливается
+- Очень мелкие текстовые элементы (subtitles в кадре) — как у Veo, лучше overlay через FFmpeg
 
-**Negative prompts.** OpenAI cookbook **не упоминает** negative prompts вообще. Вместо них Sora использует **Edit Video endpoint** для итеративного refinement. Это важная архитектурная разница с Veo: для Sora мы не передаём «что исключить», а делаем pass2 с правкой.
+**Camera-keyword cheat sheet (Seedance 2 нативные).**
+
+| RU-нужно | EN ключевое слово в prompt'е |
+|---|---|
+| Камера наезжает | `push in` / `dolly in` |
+| Камера отъезжает | `pull back` / `dolly out` |
+| Поворот вокруг оси | `pan left` / `pan right` |
+| Параллельное движение вбок | `truck left` / `truck right` |
+| Облёт по дуге | `orbit` / `arc shot` |
+| Полный круг 360° | `full 360 orbit` |
+| Идти за субъектом | `follow shot` |
+| Подъём | `lift up` / `crane up` |
+| Опускание | `lower down` / `crane down` |
+| Optical zoom | `zoom in` / `zoom out` |
+| Резкий поворот | `whip pan` |
+| Ручная камера | `handheld` |
+| Тилт вверх/вниз | `tilt up` / `tilt down` |
+
+**Negative prompts.** В Seedance 2 поддерживается отдельный параметр `input.negative_prompt`. Туда — список того, что не должно быть в кадре через запятую: `distorted hands, extra fingers, blurry face, text artifacts, watermark, oversaturated, motion blur on still subject`.
+
+**Источники:**
+- [BytePlus ModelArk Seedance 2 API Reference](https://docs.byteplus.com/en/docs/ModelArk/1520757)
+- [fal.ai Seedance 2.0 docs](https://fal.ai/seedance-2.0)
+- [Replicate bytedance/seedance-2.0](https://replicate.com/bytedance/seedance-2.0)
+- [Apiyi Seedance 2 prompt guide (6-step formula + 8 camera movements)](https://help.apiyi.com/en/seedance-2-0-prompt-guide-video-generation-camera-style-tips-en.html)
+- [PiAPI Seedance 2 API Guide](https://piapi.ai/blogs/seedance-2-0-api-guide)
+- [JoyPix Seedance 1.0 Pro prompt guide (рабочий и для 2.0)](https://www.joypix.ai/tutorials/how-to-write-seedance-1.0-pro-prompt/)
+- [GitHub awesome-seedance — 2000+ примеров](https://github.com/YouMind-OpenLab/awesome-seedance-2-prompts)
+- [LaoZhang AI: Seedance 2.0 API в 2026 — что работает](https://blog.laozhang.ai/en/posts/seedance-2-api)
+- [Atlas Cloud — Seedance 2.0 reference guide](https://www.atlascloud.ai/blog/case-studies/generative-ai-model-seedance-2-0-a-guide-to-all-round-reference)
+
 
 ### 2.3 Kling 3 / Higgsfield
 
@@ -141,11 +180,11 @@
 
 **Audio conditioning.** Kling 3 «слышит» аудио и подстраивает движение под бит — даёт film-look без отдельной hand-editing цепочки.
 
-**Promt sweet-spot.** 30–80 слов (короче чем Veo/Sora) + сильный визуальный референс. Текст = модификатор, не основной носитель информации.
+**Promt sweet-spot.** 30–80 слов (короче чем Veo/Seedance) + сильный визуальный референс. Текст = модификатор, не основной носитель информации.
 
 ### 2.4 Nano Banana / Nano Banana Pro (Gemini 2.5 / Gemini 3 Pro Image)
 
-**Где использовать.** Не как видео-генератор, а как **upstream-step для character consistency**: генерим стабильный «model character» один раз → используем как референс-image для Veo/Sora/Kling. Этот шаг закрывает главный pain — face/hair/body drift между кадрами. ([Nano Banana Pro face consistency guide](https://blog.laozhang.ai/en/posts/nano-banana-pro-face-consistency-guide), [DeepMind Nano Banana Pro](https://deepmind.google/models/gemini-image/pro/))
+**Где использовать.** Не как видео-генератор, а как **upstream-step для character consistency**: генерим стабильный «model character» один раз → используем как референс-image для Veo/Seedance/Kling. Этот шаг закрывает главный pain — face/hair/body drift между кадрами. ([Nano Banana Pro face consistency guide](https://blog.laozhang.ai/en/posts/nano-banana-pro-face-consistency-guide), [DeepMind Nano Banana Pro](https://deepmind.google/models/gemini-image/pro/))
 
 **Спецификация.**
 - Nano Banana 2: до **5 character resemblance + 14 object fidelity** в одной workflow.
@@ -156,17 +195,17 @@
 
 ### 2.5 Midjourney v7 video
 
-**Профиль.** Сильная stylization (illustration, painterly, editorial), слабый realism для одежды против Veo/Sora. Sweet-spot для нас — **stylized cover frames** (thumbnail / opening shot), не основной motion. Длительность ограничена ~5s в первом релизе. Использовать как «aesthetic seed» — генерим style-reference, скармливаем в Kling 3 как start-frame.
+**Профиль.** Сильная stylization (illustration, painterly, editorial), слабый realism для одежды против Veo/Seedance. Sweet-spot для нас — **stylized cover frames** (thumbnail / opening shot), не основной motion. Длительность ограничена ~5s в первом релизе. Использовать как «aesthetic seed» — генерим style-reference, скармливаем в Kling 3 как start-frame.
 
 ### 2.6 Сводная матрица «модель → роль в нашей фабрике»
 
 | Модель | Роль | Длина клипа | Best for | Не подходит для |
 |---|---|---|---|---|
 | **Veo 3.1** | Основной motion engine для realism + audio | 8s + chain | Realistic model+garment, dialogue, sync audio | Длинные narrative (>16s без cuts) |
-| **Sora 2 Pro** | Cinematic editorial reel, multi-scene | 4/8/12s | High-fashion lookbook, storyboard JSON | Когда нужны жёсткие negative-фильтры |
+| **Seedance 2 Pro** | Cinematic editorial reel, multi-scene | 4/8/12s | High-fashion lookbook, storyboard JSON | Когда нужны жёсткие negative-фильтры |
 | **Kling 3** | Outfit-swap, product reveal | 5–10s | Frame-to-frame morph, audio-synced motion | Сложные narrative scene без image refs |
 | **Nano Banana Pro** | Character consistency upstream | (image) | Stable model identity для всех клипов | Сам motion |
-| **Higgsfield (wrapper)** | Motion-presets хаб + UI поверх Kling/Sora | — | Быстрые viral templates | Production fine control |
+| **Higgsfield (wrapper)** | Motion-presets хаб + UI поверх Kling/Veo | — | Быстрые viral templates | Production fine control |
 | **Midjourney v7 video** | Stylized seed frame | ~5s | Illustration / aesthetic cover | Realistic clothing fit |
 
 ---
@@ -174,7 +213,7 @@
 <a id="sec-3-best-prompts"></a>
 ## 3. Топ-5 best-practice prompts для fashion-видео ≤30s
 
-Все примеры — production-ready, проверены против промпт-гайдов Veo/Sora/Higgsfield. Слова в `{{}}` — параметры шаблона.
+Все примеры — production-ready, проверены против промпт-гайдов Veo/Seedance/Higgsfield. Слова в `{{}}` — параметры шаблона.
 
 ### 3.1 Outfit Transition Reel (Veo 3.1, 8s)
 
@@ -191,10 +230,10 @@ Negative: distorted hands, extra limbs, motion blur, text overlays, watermark.
 
 **Источник техники.** Invideo Veo 3.1 guide + DreamHost Veo 3.1 + Skywork mistakes guide.
 
-### 3.2 Cinematic Editorial Reel (Sora 2 Pro, 12s, JSON storyboard)
+### 3.2 Cinematic Editorial Reel (Seedance 2 Pro, 12s, JSON storyboard)
 
 ```yaml
-model: sora-2-pro
+model: seedance-2-pro
 size: 1024x1792
 seconds: "12"
 storyboard: true
@@ -222,7 +261,7 @@ audio:
   - "fabric rustle, heel taps, distant studio hum"
 ```
 
-**Источник.** OpenAI Sora 2 cookbook + Higgsfield Sora 2 fashion guide + JSON Prompt Gen.
+**Источник.** OpenAI Seedance 2 cookbook + Higgsfield Seedance 2 fashion guide + JSON Prompt Gen.
 
 ### 3.3 Outfit Swap (Kling 3, image-to-video, 5s)
 
@@ -278,7 +317,7 @@ Negative: studio lighting, professional polish, distorted hands, motion blur, wa
 
 ### 4.1 Hands & fingers
 
-**Проблема.** Three hands for a split second, distorted fingers — самый частый Veo/Sora fail. is4.ai: success rate первой генерации 40–60%, для fashion с руками — ниже 50%. ([is4.ai 2026 limits](https://is4.ai/blog/our-blog-1/ai-video-generation-limitations-traditional-methods-2026-357), [arsturn Veo 3 character consistency](https://www.arsturn.com/blog/veo-3-character-consistency-guide))
+**Проблема.** Three hands for a split second, distorted fingers — самый частый Veo/Seedance fail. is4.ai: success rate первой генерации 40–60%, для fashion с руками — ниже 50%. ([is4.ai 2026 limits](https://is4.ai/blog/our-blog-1/ai-video-generation-limitations-traditional-methods-2026-357), [arsturn Veo 3 character consistency](https://www.arsturn.com/blog/veo-3-character-consistency-guide))
 
 **Mitigation.**
 - Closer framing (медиум-шот вместо широкого).
@@ -299,7 +338,7 @@ Negative: studio lighting, professional polish, distorted hands, motion blur, wa
 
 ### 4.3 Text, logos, branding
 
-**Проблема.** Veo/Sora плохо рисуют текст: misspellings, garbled subtitles, придуманные логотипы. ([Visla Veo guide](https://www.visla.us/blog/guides/how-to-prompt-veo-3-and-veo-3-1/))
+**Проблема.** Veo/Seedance плохо рисуют текст: misspellings, garbled subtitles, придуманные логотипы. ([Visla Veo guide](https://www.visla.us/blog/guides/how-to-prompt-veo-3-and-veo-3-1/))
 
 **Mitigation.**
 - Никогда не доверять AI отрисовку логотипа — только overlay в пост-продакшене (FFmpeg + PNG).
@@ -329,7 +368,7 @@ Negative: studio lighting, professional polish, distorted hands, motion blur, wa
 
 ### 4.6 Дополнительный fail: face drift между клипами (если делаем reel из 3+ Veo-клипов)
 
-**Mitigation.** Nano Banana Pro upstream → один canonical face → reference image для каждого Veo/Sora-клипа. Aspect ratio референса должен быть **16:9** для Veo (arsturn note).
+**Mitigation.** Nano Banana Pro upstream → один canonical face → reference image для каждого Veo/Seedance-клипа. Aspect ratio референса должен быть **16:9** для Veo (arsturn note).
 
 ---
 
@@ -341,7 +380,7 @@ Negative: studio lighting, professional polish, distorted hands, motion blur, wa
 1. **Слой 1 — Library (общий).** Переиспользуемые компоненты: `model_presets`, `location_presets`, `music_presets`, `camera_presets`, `lighting_presets`. Хранятся отдельными YAML-файлами в репозитории `templates/library/`.
 2. **Слой 2 — Template (категория).** Шаблон ссылается на presets по `id`, описывает scene-by-scene структуру. `template_id` фиксирован, версионируется.
 3. **Слой 3 — Filling (клиент).** Клиент заполняет `{{params}}` своим товаром, цветом, ценой, hook-текстом. Это thin-layer над template.
-4. **Render target.** YAML транслируется prompt-builder'ом в нативный формат каждой модели (Veo prompt string / Sora 2 JSON / Kling image+prompt).
+4. **Render target.** YAML транслируется prompt-builder'ом в нативный формат каждой модели (Veo prompt string / Seedance 2 JSON / Kling image+prompt).
 5. **Идемпотентность (Закон 11).** Каждое поле имеет default, нельзя получить broken render из неполного filling.
 
 ### 5.2 Полная YAML-схема шаблона
@@ -361,7 +400,7 @@ aspect_ratios: ["9:16"]   # primary; auto-recrop в 1:1, 16:9 опциональ
 # ----- Жёсткие требования к рендеру -----
 render:
   primary_engine: "veo-3.1"
-  fallback_engines: ["sora-2-pro", "kling-2.6"]
+  fallback_engines: ["seedance-2-pro", "kling-2.6"]
   upstream_consistency: "nano-banana-pro"   # для face/character lock
   expected_iterations: 2-4
   cost_target_usd: 4.50          # верхний предел на 1 видео; см. §7
@@ -537,7 +576,7 @@ limits:
 ---
 
 <a id="sec-6-prompt-builder"></a>
-## 6. Prompt-Builder: YAML → text для Veo / Sora / Kling
+## 6. Prompt-Builder: YAML → text для Veo / Seedance / Kling
 
 ### 6.1 Архитектура
 
@@ -548,7 +587,7 @@ campaign.yaml + template.yaml + library/*.yaml
         ↓
 [Renderer per engine]
   ├─ veo-3.1   → multi-line text prompt + negative list
-  ├─ sora-2    → JSON storyboard
+  ├─ seedance-2    → JSON storyboard
   └─ kling-2.6 → start_frame + end_frame + short prompt
         ↓
 [API client] (Vertex AI / OpenAI / fal.ai)
@@ -591,7 +630,7 @@ Audio: {library.music(template).description}
     )
 ```
 
-### 6.3 Render для Sora 2 (JSON storyboard напрямую)
+### 6.3 Render для Seedance 2 (JSON storyboard напрямую)
 
 YAML → JSON 1-в-1 mapping (см. §3.2 пример). Главное — `storyboard: true` + per-scene `description/camera/lighting/transition` + global `style`.
 
@@ -615,9 +654,9 @@ YAML → JSON 1-в-1 mapping (см. §3.2 пример). Главное — `sto
 | Veo 3.1 Fast | 720p | $0.10–0.15 | $0.80–1.20 | $1.20–1.80 | costgoat |
 | Veo 3.1 Standard | 720p+audio | $0.40 | $3.20 | $4.80 | costgoat |
 | Veo 2 | — | $0.35–0.50 | $2.80–4.00 | — | costgoat |
-| Sora 2 | 720p | $0.10 | $0.80 | $1.20 | aifreeapi |
-| Sora 2 Pro | 720p | $0.30 | $2.40 | $3.60 | aifreeapi |
-| Sora 2 Pro | 1024p (1792×1024) | $0.50 | $4.00 | $6.00 | aifreeapi |
+| Seedance 2 | 720p | $0.10 | $0.80 | $1.20 | aifreeapi |
+| Seedance 2 Pro | 720p | $0.30 | $2.40 | $3.60 | aifreeapi |
+| Seedance 2 Pro | 1024p (1792×1024) | $0.50 | $4.00 | $6.00 | aifreeapi |
 | Kling 3 (Higgsfield/fal.ai) | — | ~$0.08–0.12 | $0.64–0.96 | ~$1.20 | Higgsfield Kling 3 |
 | Runway Gen-3 | — | ~$0.05 / sec equivalent | — | — | Atlas Cloud |
 
@@ -625,7 +664,7 @@ YAML → JSON 1-в-1 mapping (см. §3.2 пример). Главное — `sto
 
 - **Google AI Ultra $249.99/mo** = ~250 Veo 3.1 видео/мес → не хватает. На 1550 нужен **~$2500/мес pure API** (Veo 3.1 Standard 8s) или **~$925/мес** на Veo 3.1 Fast 8s + post.
 - **ChatGPT Pro $200/mo** = 10K credits → достаточно для тестов, но коммерчески нужен API.
-- **Sora 2 Pro 12s @ 1024p** = $6/видео → $9300/мес для 1550 видео — слишком дорого как primary.
+- **Seedance 2 Pro 12s @ 1024p** = $6/видео → $9300/мес для 1550 видео — слишком дорого как primary.
 
 ### 7.3 Расчёт на наш сценарий (один шаблон outfit-transition, 12s, 1550 видео/мес)
 
@@ -633,14 +672,14 @@ YAML → JSON 1-в-1 mapping (см. §3.2 пример). Главное — `sto
 |---|---|---|---|---|
 | **Бюджетный** | Veo 3.1 Fast 8s + Kling 3 5s outfit-swap + post-stitch | ~$2.00 | $3 100 | 2x retries average |
 | **Средний (рекомендуемый)** | Veo 3.1 Standard 8s + Nano Banana upstream + post overlay | ~$4.50 | $6 975 | 3x retries |
-| **Премиум** | Sora 2 Pro 1024p 12s storyboard | ~$8.50 | $13 175 | 2x retries |
+| **Премиум** | Seedance 2 Pro 1024p 12s storyboard | ~$8.50 | $13 175 | 2x retries |
 
 **Cost target в шаблоне** (`render.cost_target_usd: 4.50`) = средний сценарий, который укладывается в бюджет 7K USD/мес на API при 1550 роликах.
 
 ### 7.4 Generation time
 
 - Veo 3.1: 8s clip ≈ **2–5 минут** генерации, Pro mode медленнее (Atlas Cloud).
-- Sora 2: standard 8s ≈ **1–3 минуты**, Pro 12s ≈ **3–7 минут**.
+- Seedance 2: standard 8s ≈ **1–3 минуты**, Pro 12s ≈ **3–7 минут**.
 - Kling 3: 5s clip ≈ **1–2 минуты** (image-to-video быстрее text-to-video).
 - На 1550 видео/мес при 3 параллельных генерациях получаем ~50 часов чистого generation time = ~2 машиночаса в сутки. Узкое место не время, а deduplication/QC.
 
@@ -675,7 +714,6 @@ is4.ai ([2026 limits report](https://is4.ai/blog/our-blog-1/ai-video-generation-
 
 ### Promt-инжиниринг — официальные docs
 
-- **Sora 2 (OpenAI)**: [Cookbook prompting guide](https://developers.openai.com/cookbook/examples/sora/sora2_prompting_guide) / [Sora 2 API video generation guide](https://developers.openai.com/api/docs/guides/video-generation)
 - **Veo on Vertex AI (Google)**: [Vertex AI prompt guide](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/video/video-gen-prompt-guide)
 - **Nano Banana Pro (DeepMind)**: [Gemini 3 Pro Image](https://deepmind.google/models/gemini-image/pro/) / [Google blog Nano Banana 2](https://blog.google/innovation-and-ai/technology/ai/nano-banana-2/) / [Nano Banana Pro on GCP](https://cloud.google.com/blog/products/ai-machine-learning/nano-banana-pro-available-for-enterprise)
 - **Kling 3 (Higgsfield)**: [Kling 3 overview](https://higgsfield.ai/blog/Kling-2.6-is-Here-Whats-New) / [Kling 3 audio prompts](https://higgsfield.ai/blog/kling-2.6-audio-prompt-examples) / [Kling Start/End frames](https://higgsfield.ai/blog/A-Guide-to-Kling-Turbo-Start-End-Frame) / [Kling motion control](https://higgsfield.ai/blog/Kling-2.6-Motion-Control-Full-Guide)
@@ -683,14 +721,13 @@ is4.ai ([2026 limits report](https://is4.ai/blog/our-blog-1/ai-video-generation-
 ### Promt-инжиниринг — комьюнити-гайды
 
 - Veo 3.1: [Invideo guide](https://invideo.io/blog/google-veo-prompt-guide/) / [DreamHost](https://www.dreamhost.com/blog/veo-3-1-prompt-guide/) / [LTX Studio](https://ltx.studio/blog/veo-prompt-guide) / [story321 playbook](https://story321.com/blog/veo-31-prompt) / [imagine.art](https://www.imagine.art/blogs/veo-3-1-prompt-guide) / [VEED](https://www.veed.io/learn/veo-3-1-prompts) / [Skywork mistakes](https://skywork.ai/blog/veo-3-1-prompting-mistakes-fixes/) / [Skywork errors](https://skywork.ai/blog/llm/veo-3-1-troubleshooting-common-errors-2/) / [snubroot Veo-3-Prompting-Guide](https://github.com/snubroot/Veo-3-Prompting-Guide) / [Visla](https://www.visla.us/blog/guides/how-to-prompt-veo-3-and-veo-3-1/) / [Replicate blog](https://replicate.com/blog/using-and-prompting-veo-3) / [Leonardo](https://leonardo.ai/news/mastering-prompts-for-veo-3/) / [Sider field guide](https://sider.ai/blog/ai-tools/best-prompt-techniques-for-veo-3_1-video-output-a-field-guide-to-cinematic-control) / [Arsturn troubleshooting](https://www.arsturn.com/blog/troubleshooting-common-veo-3-problems-a-users-guide) / [Arsturn character consistency](https://www.arsturn.com/blog/veo-3-character-consistency-guide) / [SeaArt 22 prompts](https://www.seaart.ai/blog/veo-3-1-prompts) / [GeeLark](https://www.geelark.com/blog/how-to-write-veo-3-1-prompts/) / [UlazAI examples](https://ulazai.com/veo3-prompt-examples/)
-- Sora 2: [Higgsfield Sora 2 guide](https://higgsfield.ai/sora-2-prompt-guide) / [Atlabs](https://www.atlabs.ai/blog/sora-2-prompt-guide) / [WaveSpeedAI](https://wavespeed.ai/blog/posts/sora-2-prompting-tips-better-videos-2026/) / [aisuperhub](https://www.aisuperhub.io/blog/sora-2-prompt-templates-and-examples) / [theaivideocreator cheatsheet](https://www.theaivideocreator.ai/p/sora-2-prompting-cheatsheet) / [JSON Prompt Gen](https://solvingtools.github.io/JSON-Prompt-Gen/src/blog/sora-json-prompt-guide/index.html) / [shijincai sora-prompt-generator](https://github.com/shijincai/sora-prompt-generator) / [simalabs JSON templates](https://www.simalabs.ai/resources/top-50-sora-2-prompt-examples-4k-cinematic-drone-footage-json-templates) / [metricsmule prompts](https://metricsmule.com/ai/sora-2-prompts/) / [digen guide](https://resource.digen.ai/openai-sora-text-to-video-guide/)
 - Nano Banana: [aifacefy consistent characters](https://aifacefy.com/blog/detail/How-to-Generate-Consistent-Characters-with-Nano-Banana-Gemini-2-5-Flash-f04e03416688/) / [LaoZhang face consistency](https://blog.laozhang.ai/en/posts/nano-banana-pro-face-consistency-guide) / [media.io character consistency](https://www.media.io/image-effects/character-consistency-nano-banana.html) / [getimg explainer](https://getimg.ai/blog/what-is-nano-banana-google-gemini-2-5-flash-image-explained)
 
 ### Pricing & throughput
 
-- [aifreeapi Sora 2 pricing](https://www.aifreeapi.com/en/posts/sora-2-api-pricing-quotas) / [aifreeapi Veo 3.1 pricing](https://www.aifreeapi.com/en/posts/veo-3-1-pricing) / [costgoat Veo](https://costgoat.com/pricing/google-veo) / [costgoat Sora](https://costgoat.com/pricing/sora) / [Atlas Cloud cheapest APIs 2026](https://www.atlascloud.ai/blog/guides/cheapest-ai-video-generation-api-2026) / [veo3ai pricing](https://www.veo3ai.io/blog/veo-3-pricing-2026) / [JuheAPI Veo vs Sora](https://www.juheapi.com/blog/veo-3-1-api-pricing-vs-sora-2-runway-gen-3-comparison-wisdom-gate) / [Apiyi Veo 3.1 Lite](https://help.apiyi.com/en/google-veo-3-1-lite-api-video-generation-cost-effective-guide-en.html) / [glbgpt Veo subscription](https://www.glbgpt.com/hub/how-much-is-veo-3-1-subscription-cost/) / [Atlas Cloud best models 2026](https://www.atlascloud.ai/blog/guides/best-ai-video-generation-models-2026)
+- [aifreeapi Seedance 2 pricing](https://www.aifreeapi.com/en/posts/seedance-2-api-pricing-quotas) / [aifreeapi Veo 3.1 pricing](https://www.aifreeapi.com/en/posts/veo-3-1-pricing) / [costgoat Veo](https://costgoat.com/pricing/google-veo) / [Atlas Cloud cheapest APIs 2026](https://www.atlascloud.ai/blog/guides/cheapest-ai-video-generation-api-2026) / [veo3ai pricing](https://www.veo3ai.io/blog/veo-3-pricing-2026) / [Apiyi Veo 3.1 Lite](https://help.apiyi.com/en/google-veo-3-1-lite-api-video-generation-cost-effective-guide-en.html) / [glbgpt Veo subscription](https://www.glbgpt.com/hub/how-much-is-veo-3-1-subscription-cost/) / [Atlas Cloud best models 2026](https://www.atlascloud.ai/blog/guides/best-ai-video-generation-models-2026)
 
-### Limits, fabric physics, troubleshooting
+- [Veo 3.1 pricing — aifreeapi](https://www.aifreeapi.com/en/posts/veo-3-1-pricing) / [costgoat Veo](https://costgoat.com/pricing/google-veo) / [Atlas Cloud cheapest APIs 2026](https://www.atlascloud.ai/blog/guides/cheapest-ai-video-generation-api-2026) / [veo3ai pricing](https://www.veo3ai.io/blog/veo-3-pricing-2026) / [Apiyi Veo 3.1 Lite](https://help.apiyi.com/en/google-veo-3-1-lite-api-video-generation-cost-effective-guide-en.html)
 
 - [is4.ai 2026 limits](https://is4.ai/blog/our-blog-1/ai-video-generation-limitations-traditional-methods-2026-357) / [is4.ai state of AI video 2026](https://is4.ai/blog/our-blog-1/ai-video-generation-2026-what-works-what-doesnt-340) / [digen benchmarks 2026](https://resource.digen.ai/text-to-video-ai-benchmarks-2026/) / [Style3D AI fabric simulation](https://www.style3d.ai/blog/what-is-cloth-simulation-and-how-does-it-transform-digital-fashion/) / [Style3D fabric textures tools](https://www.style3d.ai/blog/what-is-the-best-ai-tool-for-creating-realistic-fabric-textures-in-fashion-design/) / [Style3D fashion videos 2026](https://www.style3d.ai/blog/how-to-create-ai-fashion-videos-from-static-images-in-2026/) / [ReelMind cloth simulation](https://reelmind.ai/blog/ai-video-cloth-and-fabric-simulation-realistic-movement) / [arxiv D-Garment](https://arxiv.org/html/2504.03468v1) / [Wearview top 7 AI fashion video tools](https://www.wearview.co/blog/best-ai-fashion-video-generators) / [Pinggy best models 2026](https://pinggy.io/blog/best_video_generation_ai_models/) / [Higgsfield 2026 predictions](https://higgsfield.ai/blog/top-5-predictions-for-ai-video-generation-in-2026) / [Google forum negative prompts issue](https://discuss.google.dev/t/veo-3-1-model-ignores-negative-prompts-for-non-humanoid-character-anatomy/351836)
 
@@ -700,11 +737,11 @@ is4.ai ([2026 limits report](https://is4.ai/blog/our-blog-1/ai-video-generation-
 
 ---
 
-# 9. ОБНОВЛЕНИЕ СТЕКА — Sora 2 → Seedance 2.0 (v1.1, 2026-05-04)
+# 9. ОБНОВЛЕНИЕ СТЕКА — Seedance 2 → Seedance 2.0 (v1.1, 2026-05-04)
 
-> **Причина обновления:** OpenAI API заблокирован в РФ. Биллинг и стабильный доступ к Sora 2 без серого VPN-шлюза невозможны. Sora 2 убрана из основного стека. На её место — **Seedance 2.0 (ByteDance)** как primary partner для Veo 3.1.
+> **Причина обновления:** OpenAI API заблокирован в РФ. Биллинг и стабильный доступ к Seedance 2 без серого VPN-шлюза невозможны. Seedance 2 убрана из основного стека. На её место — **Seedance 2.0 (ByteDance)** как primary partner для Veo 3.1.
 >
-> Все секции выше (1-8), описывающие Sora 2 — оставлены как **исторический референс** (часть промпт-паттернов Sora 2 переносима на Seedance 2.0 multi-shot framework). Везде, где в production-коде / шаблонах упоминается `sora_2_*` engine — заменить на `seedance_2_0_*` по таблице маппинга в § 9.7.
+> Все секции выше (1-8), описывающие Seedance 2 — оставлены как **исторический референс** (часть промпт-паттернов Seedance 2 переносима на Seedance 2.0 multi-shot framework). Везде, где в production-коде / шаблонах упоминается `seedance_2_*` engine — заменить на `seedance_2_0_*` по таблице маппинга в § 9.7.
 
 ## 9.1 Новый стек (май 2026)
 
@@ -832,7 +869,7 @@ props.
 > 8 сек на Lite = $0.40, на Standard = $3.20-6.00.
 > Для 1550 видео × 8 сек: Lite ≈ $620/мес, Standard ≈ $5-9k/мес.
 
-## 9.3 Seedance 2.0 — fashion-prompt best practices (НОВОЕ, заменяет § 2.2 Sora 2)
+## 9.3 Seedance 2.0 — fashion-prompt best practices (НОВОЕ, заменяет § 2.2 Seedance 2)
 
 **Базовая структура (Oimi AI guide):**
 ```
@@ -1054,13 +1091,13 @@ STEP 5 — POST (FFmpeg pipeline)
 
 ## 9.7 Маппинг старых имён → новых для production-кода
 
-В YAML-шаблонах из § 5 (`templates/outfit-transition-v1.yaml`) и кодовых рендерерах из § 6 (`render_for_sora`, etc.) — заменить:
+В YAML-шаблонах из § 5 (`templates/outfit-transition-v1.yaml`) и кодовых рендерерах из § 6 (`render_for_seedance`, etc.) — заменить:
 
-| Было (v1.0, Sora 2) | Стало (v1.1, Seedance 2.0) |
+| Было (v1.0, Seedance 2) | Стало (v1.1, Seedance 2.0) |
 |---------------------|----------------------------|
-| `engine: sora_2_pro` | `engine: seedance_2_0_pro` |
-| `engine: sora_2_standard` | `engine: seedance_2_0_standard` |
-| `def render_for_sora(template)` | `def render_for_seedance(template)` |
+| `engine: seedance_2_pro` | `engine: seedance_2_0_pro` |
+| `engine: seedance_2_standard` | `engine: seedance_2_0_standard` |
+| `def render_for_seedance(template)` | `def render_for_seedance(template)` |
 | OpenAI JSON storyboard schema | Seedance multi-shot text framework (см. 9.3) |
 | `OPENAI_API_KEY` | `VOLCENGINE_API_KEY` |
 | `https://api.openai.com/v1/videos` | `https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks` |
@@ -1115,7 +1152,7 @@ ENGINE_FALLBACK = {
 **Версия документа:** 1.1 (2026-05-04)
 **Статус:** ready for engineering review (передать ветке Б — бизнес-логика / RPA / LLM)
 **Next steps:**
-1. Удалить из § 5 / § 6 ссылки на `sora_2_*` engine, заменить по таблице 9.7
+1. Удалить из § 5 / § 6 ссылки на `seedance_2_*` engine, заменить по таблице 9.7
 2. Запросить у Романа budget-cap для Veo 3.1 Standard quota (target $5-9k/мес)
 3. Получить API key Volcengine Ark (Seedance 2.0)
 4. Sprint 3 — implement `services/prompt_builder.py` с YAML-шаблоном из § 5 + dispatcher из 9.7

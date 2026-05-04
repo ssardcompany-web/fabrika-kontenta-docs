@@ -456,7 +456,7 @@
 
 **Параметры шаблона:**
 - Локации (set): {city-street, café-interior, park, beach, gym}
-- AI-генерируется хорошо для outdoor (Sora-2 уровень) — Hard для интерьеров
+- AI-генерируется хорошо для outdoor (Seedance 2 уровень) — Hard для интерьеров
 - Лицо вне кадра / blur (правило WB)
 
 **Правила:** WB ⚠️ (без логотипов конкурентов — кафе, авто и т.д.), Ozon ✓, ML ✓
@@ -613,11 +613,11 @@
 | Ghost-mannequin spin (формат 01) | Easy | Любая generic (Pika, Runway) | photorobot turntable + AI background |
 | Recolor одной вещи (06) | Easy | Stable Diffusion + ControlNet | bulletproof |
 | Макро-ткань (04, 15) | Easy | Реальные кадры → AI-doтянуть | НЕ AI-only |
-| AI-walk model (02) | **Hard** | Sora-2, Veo-3 — пока 60–70% качество | Реальная модель + AI try-on (Kling, Dressie) |
+| AI-walk model (02) | **Hard** | Seedance 2, Veo-3 — пока 60–70% качество | Реальная модель + AI try-on (Kling, Dressie) |
 | AI-руки (POV 17, unboxing 11) | **Hard** | Все модели путаются с пальцами | Реальные кадры обязательны |
 | AI-stretch ткань (08) | **Hard** | Физика ткани плохая | Реальные кадры |
 | Multi-body-type (03) | **Hard** | Сложно сохранить ту же одежду между моделями | Try-on AI (Kling Virtual Try-On, FitRoom) |
-| Lifestyle outdoor (16) | Medium-Hard | Sora-2 хорошо outdoor, плохо interior | outdoor — AI; interior — реал |
+| Lifestyle outdoor (16) | Medium-Hard | Seedance 2 хорошо outdoor, плохо interior | outdoor — AI; interior — реал |
 
 ---
 
@@ -672,7 +672,7 @@ platform_compliance:
 reproducibility:
   per_sku: 1.0  # 100% — любой SKU из 1550
   generation_time_s: 90  # AI-генерация 8s видео
-  cost_per_video_usd: 0.40  # Sora/Veo-стиль
+  cost_per_video_usd: 0.40  # Seedance/Veo-стиль
 ```
 
 ---
